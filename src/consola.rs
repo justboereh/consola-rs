@@ -1,5 +1,6 @@
 use crate::utils::TypeIcons;
 use colored::*;
+use std::path::Path;
 
 pub struct Consola {
     pub unicode_supported: bool,
@@ -48,11 +49,24 @@ impl Consola {
                     return;
                 }
 
+                let name = symbol.name().unwrap().to_string();
+
+                let mut iter = Path::new(symbol.filename().unwrap().to_str().unwrap())
+                    .iter()
+                    .rev();
+                let mut filename = String::new();
+                let file = iter.next().unwrap().to_str().unwrap();
+                let dir = iter.next().unwrap().to_str().unwrap();
+
+                filename.push_str(dir);
+                filename.push_str("/");
+                filename.push_str(file);
+
                 println!(
-                    "  {} {:?} ({})",
+                    "    {} {} ({})",
                     "at".truecolor(100, 100, 100),
-                    symbol.name().unwrap(),
-                    symbol.filename().unwrap().to_str().unwrap().green()
+                    name,
+                    filename.as_str().green()
                 );
             });
 
