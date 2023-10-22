@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 backtrace = "0.3.69"
 colored = "2.0.4"
+termsize = "0.1.6"

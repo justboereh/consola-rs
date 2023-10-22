@@ -1,0 +1,86 @@
+pub struct BoxStyle<'a> {
+    pub tl: &'a str,
+    pub tr: &'a str,
+    pub bl: &'a str,
+    pub br: &'a str,
+    pub h: &'a str,
+    pub v: &'a str,
+}
+
+pub struct BoxStyles<'a> {
+    pub solid: BoxStyle<'a>,
+    pub double: BoxStyle<'a>,
+    pub double_single: BoxStyle<'a>,
+    pub double_single_rounded: BoxStyle<'a>,
+    pub single_thick: BoxStyle<'a>,
+    pub single_double: BoxStyle<'a>,
+    pub single_double_rounded: BoxStyle<'a>,
+    pub rounded: BoxStyle<'a>,
+}
+
+pub const STYLES: BoxStyles = BoxStyles {
+    solid: BoxStyle {
+        tl: "┌",
+        tr: "┐",
+        bl: "└",
+        br: "┘",
+        h: "─",
+        v: "│",
+    },
+    double: BoxStyle {
+        tl: "╔",
+        tr: "╗",
+        bl: "╚",
+        br: "╝",
+        h: "═",
+        v: "║",
+    },
+    double_single: BoxStyle {
+        tl: "╓",
+        tr: "╖",
+        bl: "╙",
+        br: "╜",
+        h: "─",
+        v: "║",
+    },
+    double_single_rounded: BoxStyle {
+        tl: "╭",
+        tr: "╮",
+        bl: "╰",
+        br: "╯",
+        h: "─",
+        v: "║",
+    },
+    single_thick: BoxStyle {
+        tl: "┏",
+        tr: "┓",
+        bl: "┗",
+        br: "┛",
+        h: "━",
+        v: "┃",
+    },
+    single_double: BoxStyle {
+        tl: "╒",
+        tr: "╕",
+        bl: "╘",
+        br: "╛",
+        h: "═",
+        v: "│",
+    },
+    single_double_rounded: BoxStyle {
+        tl: "╭",
+        tr: "╮",
+        bl: "╰",
+        br: "╯",
+        h: "═",
+        v: "│",
+    },
+    rounded: BoxStyle {
+        tl: "╭",
+        tr: "╮",
+        bl: "╰",
+        br: "╯",
+        h: "─",
+        v: "│",
+    },
+};
