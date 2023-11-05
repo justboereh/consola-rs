@@ -2,14 +2,11 @@ use std::str::FromStr;
 
 pub struct TypeIcons {
     pub error: String,
-    pub fatal: String,
-    pub ready: String,
     pub warn: String,
     pub info: String,
     pub success: String,
     pub debug: String,
     pub trace: String,
-    pub fail: String,
     pub start: String,
     pub log: String,
 }
@@ -18,15 +15,12 @@ impl TypeIcons {
     pub fn new(unicode_supported: bool) -> TypeIcons {
         TypeIcons {
             error: s("✖", "×", unicode_supported),
-            fatal: s("✖", "×", unicode_supported),
-            ready: s("✔", "√", unicode_supported),
             warn: s("⚠", "‼", unicode_supported),
-            info: s("ℹ", "i", unicode_supported),
+            info: s("🛈", "i", unicode_supported),
             success: s("✔", "√", unicode_supported),
             debug: s("⚙", "D", unicode_supported),
             trace: s("→", "→", unicode_supported),
-            fail: s("✖", "×", unicode_supported),
-            start: s("◐", "o", unicode_supported),
+            start: s("🞚", "o", unicode_supported),
             log: String::from(""),
         }
     }
@@ -81,7 +75,7 @@ pub fn is_unicode_supported() -> bool {
         return true;
     }
 
-    if !term.is_none() && term.as_ref().unwrap() == "'xterm-256color" {
+    if !term.is_none() && term.as_ref().unwrap() == "xterm-256color" {
         return true;
     }
 

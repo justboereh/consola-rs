@@ -1,14 +1,13 @@
-use crate::box_styles::{BoxStyle, BoxStyles};
+use crate::box_styles::BoxStyle;
 use crate::utils::TypeIcons;
 use colored::*;
 use std::collections::HashSet;
 use std::path::Path;
 
-pub struct Consola<'a> {
+pub struct Consola {
     pub unicode_supported: bool,
     pub type_icons: TypeIcons,
-    pub box_style: BoxStyle<'a>,
-    pub printable: bool,
+    pub box_style: BoxStyle,
 }
 
 #[derive(Clone)]
@@ -28,20 +27,8 @@ impl Default for BoxiOptions {
     }
 }
 
-pub fn enable_print() {
-    std::env::remove_var("PRINT_DISABLED");
-}
-
-pub fn disable_print() {
-    std::env::set_var("PRINT_DISABLED", "true");
-}
-
-impl Consola<'_> {
+impl Consola {
     pub fn info(&self, message: &str) {
-        if !self.printable {
-            return;
-        }
-
         println!(
             "{} {}",
             self.type_icons.info.as_str().green(),
@@ -49,52 +36,24 @@ impl Consola<'_> {
         );
     }
 
-    pub fn start(&self, message: &str) -> impl Fn() {
-        if !self.printable {
-            return disable_print as fn();
-        }
-
-        println!(
-            "{} {}",
-            self.type_icons.start.as_str().purple(),
-            message.white()
-        );
-
-        disable_print();
-
-        fn stop() {
-            enable_print();
-        }
-
-        return stop;
+    pub fn start(&self, message: &str) {
+        println!("{} {}", self.type_icons.start.purple(), message.white())
     }
 
     pub fn warn(&self, message: &str) {
-        if !self.printable {
-            return;
-        }
-
-        println!("{} {}\n", " WARN ".on_yellow(), message.white());
+        println!("\n{}  {}\n", self.type_icons.warn.yellow(), message.white());
     }
 
     pub fn success(&self, message: &str) {
-        if !self.printable {
-            return;
-        }
-
         println!(
-            "{} {}\n",
+            "{}  {}\n",
             self.type_icons.success.as_str().green(),
             message.white()
         );
     }
 
     pub fn error(&self, message: &str, len: Option<i8>) {
-        if !self.printable {
-            return;
-        }
-
-        print!("{} {}\n", " ERROR ".on_red(), message.white());
+        print!("{}  {}\n", self.type_icons.error.red(), message.white());
 
         let mut frames_left: i8 = if len.is_none() { 125 } else { len.unwrap() };
         let mut skip_frames: i8 = 4;
@@ -128,7 +87,7 @@ impl Consola<'_> {
 
                 println!(
                     "    {} {} ({})",
-                    "at".truecolor(100, 100, 100),
+                    self.type_icons.trace.truecolor(100, 100, 100),
                     name,
                     filename.as_str().green()
                 );
@@ -152,87 +111,113 @@ impl Consola<'_> {
         let center = options.clone().unwrap_or_default().center;
         let padding_y = padding / 4;
 
-        let size: usize = termsize::get().map(|size| size.cols).unwrap().into();
-        let mut messages = HashSet::new();
-        let horizontals = if fill.clone() {
-            size - 2
-        } else {
-            message.len() + padding
-        };
+        let term_size: usize = termsize::get().map(|size| size.cols).unwrap().into();
+        let mut messages: Vec<String> = vec![];
+        let max_size = term_size - padding / 2 - 2;
 
-        if padding + message.len() >= size {
-            let words = message.split(" ").into_iter();
-            let mut line = String::new();
+        for msg in String::from(message).split("\n") {
+            if msg.len() >= max_size {
+                let mut words = String::new();
 
-            for msg in words {
-                if line.len() + 1 + padding >= size {
-                    messages.insert(line.clone());
+                for word in msg.split(" ") {
+                    if &words.len() + word.len() + 1 >= max_size {
+                        messages.push(words.clone());
 
-                    line = String::new()
+                        message.clear();
+                    }
+
+                    if &words.len() < &1 {
+                        let _ = &words.insert_str(words.len(), &word);
+
+                        continue;
+                    }
+
+                    let _ = &words.insert_str(words.len(), (" ".to_owned() + &word).as_str());
                 }
 
-                if line.len() > 0 {
-                    line.insert_str(line.len(), " ");
-                }
-
-                line.insert_str(line.len(), &msg);
+                continue;
             }
-        } else {
-            messages.insert(String::from(message));
         }
 
-        // top box
-        print!("{}", self.box_style.tl);
+        // let horizontals = if fill.clone() {
+        //     size - 2
+        // } else {
+        //     message.len() + padding
+        // };
 
-        for _ in 0..horizontals {
-            print!("{}", self.box_style.h);
-        }
+        // if padding + message.len() >= size {
+        //     let words = message.split(" ").into_iter();
+        //     let mut line = String::new();
 
-        print!("{}\n", self.box_style.tr);
+        //     for msg in words {
+        //         if line.len() + 1 + padding >= size {
+        //             messages.insert(line.clone());
 
-        for _ in 0..padding_y {
-            print!("{}", self.box_style.v);
+        //             line = String::new()
+        //         }
 
-            for _ in 0..horizontals {
-                print!(" ");
-            }
+        //         if line.len() > 0 {
+        //             line.insert_str(line.len(), " ");
+        //         }
 
-            print!("{}\n", self.box_style.v);
-        }
+        //         line.insert_str(line.len(), &msg);
+        //     }
+        // } else {
+        //     messages.insert(String::from(message));
+        // }
 
-        for msg in messages {
-            print!("{}", self.box_style.v);
+        // // top box
+        // print!("{}", self.box_style.tl);
 
-            for _ in 0..(padding / 2) {
-                print!(" ");
-            }
+        // for _ in 0..horizontals {
+        //     print!("{}", self.box_style.h);
+        // }
 
-            print!("{}", msg);
+        // print!("{}\n", self.box_style.tr);
 
-            for _ in 0..(padding / 2) {
-                print!(" ");
-            }
+        // for _ in 0..padding_y {
+        //     print!("{}", self.box_style.v);
 
-            print!("{}\n", self.box_style.v);
-        }
+        //     for _ in 0..horizontals {
+        //         print!(" ");
+        //     }
 
-        // bottom box
-        for _ in 0..padding_y {
-            print!("{}", self.box_style.v);
+        //     print!("{}\n", self.box_style.v);
+        // }
 
-            for _ in 0..horizontals {
-                print!(" ");
-            }
+        // for msg in messages {
+        //     print!("{}", self.box_style.v);
 
-            print!("{}", self.box_style.v);
-        }
+        //     for _ in 0..(padding / 2) {
+        //         print!(" ");
+        //     }
 
-        print!("\n{}", self.box_style.bl);
+        //     print!("{}", msg);
 
-        for _ in 0..horizontals {
-            print!("{}", self.box_style.h);
-        }
+        //     for _ in 0..(padding / 2) {
+        //         print!(" ");
+        //     }
 
-        print!("{}\n\n", self.box_style.br);
+        //     print!("{}\n", self.box_style.v);
+        // }
+
+        // // bottom box
+        // for _ in 0..padding_y {
+        //     print!("{}", self.box_style.v);
+
+        //     for _ in 0..horizontals {
+        //         print!(" ");
+        //     }
+
+        //     print!("{}", self.box_style.v);
+        // }
+
+        // print!("\n{}", self.box_style.bl);
+
+        // for _ in 0..horizontals {
+        //     print!("{}", self.box_style.h);
+        // }
+
+        // print!("{}\n\n", self.box_style.br);
     }
 }
