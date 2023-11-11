@@ -48,7 +48,9 @@ mod tests {
         std::thread::sleep(std::time::Duration::from_secs(5));
 
         c.warn("A new version of Consola is available: 0.0.1");
+        std::thread::sleep(std::time::Duration::from_secs(1));
         c.success("Project built!");
+        std::thread::sleep(std::time::Duration::from_secs(1));
         c.error("This is an example error. Everything is fine!", None);
         c.boxi("Very simple box!", None);
         c.boxi(

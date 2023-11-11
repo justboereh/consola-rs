@@ -20,7 +20,7 @@ impl TypeIcons {
             success: s("✔", "√", unicode_supported),
             debug: s("⚙", "D", unicode_supported),
             trace: s("→", "→", unicode_supported),
-            start: s("🞚", "o", unicode_supported),
+            start: s("🞚", "♦", unicode_supported),
             log: String::from(""),
         }
     }
